@@ -39,6 +39,7 @@ const voyageRoutes = require("./routes/voyageRoutes");
 const reservationRoute = require("./routes/reservationRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const agencesRoutes = require("./routes/agencesRoutes");
+const newsletterRoutes = require("./routes/newsletterRoutes");
 // ###################### Routes USER ######################
 app.use("/API/user/", userRoutes);
 app.use("/API/user/", voyageRoutes);
@@ -50,6 +51,7 @@ app.use("/API/admin/", adminRoutes);
 app.use("/API/admin/", voyageRoutes);
 app.use("/API/admin/", reservationRoute);
 app.use("/API/admin/", agencesRoutes);
+app.use("/API/admin/", newsletterRoutes);
 
 // app.all("*", (req, res, next) => {
 //   next(new appError(`Can't find ${req.originalUrl} on this server`, 404));

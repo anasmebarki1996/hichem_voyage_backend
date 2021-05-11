@@ -55,7 +55,7 @@ exports.getAllReservations = async (req, res) => {
     order = order ? " ORDER BY " + order : "";
     limit = limit ? limit : 5;
     page = page > 0 ? page * limit : 0;
-    queryData += " LIMIT " + limit + " OFFSET " + page + order;
+    queryData += order + " LIMIT " + limit + " OFFSET " + page;
     let reservationsLength = await connexion.query(queryLength, []);
     let reservations = await connexion.query(queryData, []);
 
@@ -73,7 +73,7 @@ exports.getReservation = async (req, res) => {
     const { id } = req.body;
 
     let reservation = await connexion.query(
-      "SELECT * FROM reservation , user , voyage WHERE reservation.user_id = user.id AND reservation.voyage_id = voyage.id AND reservation.id=?",
+      "SELECT  user.nom as user_name, user.prenom as user_prenom ,user.date_naissance as user_date_naissance, user.email as user_email ,user.adresse as user_adresse ,  user.num_tel as user_num_tel , prix , duree , date_reservation,heure_reservation ,nombre_place ,status , moyen_transport, date_depart , heure_depart , lieu_depart , lieu_arrive ,voyage.id ,max_place, agence.nom as agence_nom , agence.adresse as agence_adresse FROM reservation , user , voyage , agence WHERE reservation.user_id = user.id AND reservation.voyage_id = voyage.id AND voyage.agence_id = agence.id AND reservation.id=?",
       [id]
     );
     return reservation[0];

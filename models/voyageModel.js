@@ -49,6 +49,7 @@ exports.getAllVoyages = async (req, res) => {
       lieu_depart,
       lieu_arrive,
       date_depart,
+      moyen_transport,
       limit,
       page,
       order,
@@ -56,10 +57,12 @@ exports.getAllVoyages = async (req, res) => {
 
     let queryLength = "";
     let queryData =
-      "select moyen_transport, date_depart , heure_depart , lieu_depart , lieu_arrive ,voyage.id , COUNT(reservation.id) as nombre_reservation ,SUM(reservation.nombre_place) as place_reserve ,max_place FROM voyage LEFT JOIN reservation on voyage.id = reservation.voyage_id WHERE";
+      "select moyen_transport, date_depart , heure_depart , lieu_depart , duree , prix,  lieu_arrive ,voyage.id , COUNT(reservation.id) as nombre_reservation ,SUM(reservation.nombre_place) as place_reserve ,max_place FROM voyage LEFT JOIN reservation on voyage.id = reservation.voyage_id WHERE";
     if (user_id) queryData += " user_id=" + user_id + " AND";
     if (lieu_depart)
       queryData += " lieu_depart LIKE '%" + lieu_depart + "%' AND";
+    if (moyen_transport)
+      queryData += " moyen_transport='" + moyen_transport + "' AND";
     if (lieu_arrive)
       queryData += " lieu_arrive LIKE '%" + lieu_arrive + "%' AND";
     if (date_depart) queryData += " date_depart=" + date_depart + " AND";
@@ -72,6 +75,7 @@ exports.getAllVoyages = async (req, res) => {
 
     order = order ? " ORDER BY " + order : "";
     limit = limit ? limit : 5;
+    console.log(limit);
     page = page > 0 ? page * limit : 0;
     queryData += order + " LIMIT " + limit + " OFFSET " + page;
 
@@ -81,6 +85,7 @@ exports.getAllVoyages = async (req, res) => {
 
     return { data: voyages, dataLength: voyagesLength[0].numberOfRow };
   } catch (error) {
+    console.log(error);
     throw { message: "something went wrong", status: 403 };
   }
 };
