@@ -31,6 +31,10 @@ app.use(
   })
 );
 app.use(bodyParser.json());
+
+app.get("/", (req, res) => {
+  res.send("hello world");
+});
 //fin partie bodyParser
 const userRoutes = require("./routes/admin/userRoutes");
 const voyageRoutes = require("./routes/admin/voyageRoutes");
