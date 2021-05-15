@@ -23,7 +23,11 @@ exports.updateAgence = async (req) => {
 
     return;
   } catch (error) {
-    throw { message: "you are not logged in", status: 401 };
+    throw {
+      message:
+        "Vous n'est plus connecté! Veuillez-vous vous connecter s'il vous plait",
+      status: 401,
+    };
   }
 };
 

@@ -38,27 +38,59 @@ exports.register = async (req) => {
 };
 
 exports.login = async (req) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  let user = await connexion.query("SELECT * FROM admin WHERE email=?", [
-    email,
-  ]);
+    let user = await connexion.query("SELECT * FROM admin WHERE email=?", [
+      email,
+    ]);
 
-  if (user.length) {
-    const validPassword = await bcrypt.compare(password, user[0].password);
-    if (validPassword) {
-      const { id, nom, prenom, email } = user[0];
-      let token = await signToken(id);
-      return {
-        id: id,
-        nom: nom,
-        prenom: prenom,
-        email: email,
-        access_token: token,
-        expires_in: JWT_EXPIRES_IN,
-      };
+    if (user.length) {
+      const validPassword = await bcrypt.compare(password, user[0].password);
+      if (validPassword) {
+        const { id, nom, prenom, email } = user[0];
+        let token = await signToken(id);
+        return {
+          id: id,
+          nom: nom,
+          prenom: prenom,
+          email: email,
+          access_token: token,
+          expires_in: JWT_EXPIRES_IN,
+        };
+      }
     }
-  }
 
-  throw { message: "you are not logged in", status: 401 };
+    throw {
+      message:
+        "Veuillez-vous vérifier votre email et votre mot de passe s'il vous plait",
+      status: 401,
+    };
+  } catch (error) {
+    console.log(error);
+    throw {
+      message:
+        "Vous n'est plus connecté! Veuillez-vous vous connecter s'il vous plait",
+      status: 401,
+    };
+  }
+};
+
+exports.isAdmin = async (req) => {
+  try {
+    const { admin_id } = req.body;
+
+    let admin = await connexion.query("SELECT * FROM admin WHERE id=?", [
+      admin_id,
+    ]);
+    if (admin.length) {
+      return admin[0];
+    } else throw {};
+  } catch (error) {
+    throw {
+      message:
+        "Vous n'est plus connecté! Veuillez-vous vous connecter s'il vous plait",
+      status: 401,
+    };
+  }
 };

@@ -2,9 +2,6 @@ var connexion = require("../config/db");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-const JWT_SECRET = "idfqshkf;,qesrnfzeior,za;dsqjqsdf,;fnqsjk";
-const JWT_EXPIRES_IN = 86400;
-
 exports.getAllUsers = async (req) => {
   try {
     let { limit, page, order, search } = req.body;
@@ -49,11 +46,11 @@ exports.getAllUsers = async (req) => {
 };
 
 exports.getUser = async (req) => {
-  const { id } = req.body;
+  const { user_id } = req.body;
 
   let users = await connexion.query(
     "SELECT id,nom,prenom,date_naissance,email,num_tel,adresse FROM user WHERE id=?",
-    [id]
+    [user_id]
   );
 
   return { data: users[0] };
@@ -64,24 +61,17 @@ const signToken = (id) => {
     {
       id: id,
     },
-    JWT_SECRET,
+    process.env.JWT_SECRET,
     {
-      expiresIn: JWT_EXPIRES_IN,
+      expiresIn: process.env.JWT_EXPIRES_IN,
     }
   );
 };
 
 exports.register = async (req) => {
   try {
-    const {
-      nom,
-      prenom,
-      email,
-      password,
-      date_naissance,
-      num_tel,
-      adresse,
-    } = req.body;
+    const { nom, prenom, email, password, date_naissance, num_tel, adresse } =
+      req.body;
     let user = await connexion.query(
       "SELECT * FROM user WHERE email=? OR num_tel=?",
       [email, num_tel]
@@ -123,25 +113,38 @@ exports.login = async (req) => {
         };
       }
     }
-    throw { message: "you are not logged in", status: 401 };
+    throw {
+      message:
+        "Vous n'est plus connecté! Veuillez-vous vous connecter s'il vous plait",
+      status: 401,
+    };
   } catch (error) {
     if (error.message) {
       return { error: error.message, status: error.status };
-    } else throw { message: "you are not logged in", status: 401 };
+    } else
+      throw {
+        message:
+          "Vous n'est plus connecté! Veuillez-vous vous connecter s'il vous plait",
+        status: 401,
+      };
   }
 };
 
 exports.updateUserInformations = async (req) => {
   try {
-    const { id, nom, prenom, email, num_tel, adresse } = req.body;
+    const { user_id, nom, prenom, email, num_tel, adresse } = req.body;
     await connexion.query(
       "UPDATE user SET nom=? ,prenom=? ,date_naissance=? ,num_tel=? ,adresse=? WHERE id=",
-      [nom, prenom, date_naissance, num_tel, adresse, id]
+      [nom, prenom, date_naissance, num_tel, adresse, user_id]
     );
 
     return;
   } catch (error) {
-    throw { message: "you are not logged in", status: 401 };
+    throw {
+      message:
+        "Vous n'est plus connecté! Veuillez-vous vous connecter s'il vous plait",
+      status: 401,
+    };
   }
 };
 
@@ -155,7 +158,11 @@ exports.updateUserPassword = async (req) => {
 
     return;
   } catch (error) {
-    throw { message: "you are not logged in", status: 401 };
+    throw {
+      message:
+        "Vous n'est plus connecté! Veuillez-vous vous connecter s'il vous plait",
+      status: 401,
+    };
   }
 };
 
@@ -168,4 +175,23 @@ exports.deleteUser = async (req) => {
     throw { message: "Something went wrong", status: 404 };
   }
   return;
+};
+
+exports.isUser = async (req) => {
+  try {
+    const { user_id } = req.body;
+
+    let user = await connexion.query("SELECT * FROM user WHERE id=?", [
+      user_id,
+    ]);
+    if (user.length) {
+      return user[0];
+    } else throw {};
+  } catch (error) {
+    throw {
+      message:
+        "Vous n'est plus connecté! Veuillez-vous vous connecter s'il vous plait",
+      status: 401,
+    };
+  }
 };

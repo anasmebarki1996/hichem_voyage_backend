@@ -30,6 +30,7 @@ exports.createVoyage = async (req, res) => {
     );
     return;
   } catch (error) {
+    console.log(error);
     throw { message: "something went wrong", status: 403 };
   }
 };

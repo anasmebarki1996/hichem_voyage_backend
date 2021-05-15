@@ -1,5 +1,6 @@
 const express = require("express");
-const agenceController = require("./../controllers/agenceController");
+const agenceController = require("./../../controllers/agenceController");
+const authMiddleware = require("./../../middlewares/authMiddleware");
 const router = express.Router();
 
 router.post("/createAgence", agenceController.createAgence);

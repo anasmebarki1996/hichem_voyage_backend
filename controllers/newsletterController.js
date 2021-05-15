@@ -9,9 +9,9 @@ exports.createNewsletter = async (req, res) => {
   }
 };
 
-exports.getNewsletter = async (req, res) => {
+exports.getAllnewsletters = async (req, res) => {
   try {
-    const emails = await Newsletter.getNewsletter(req, res);
+    const emails = await Newsletter.getAllnewsletters(req, res);
     res.status(200).json({
       status: "success",
       data: emails,

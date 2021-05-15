@@ -67,3 +67,9 @@ CREATE TABLE `agence_voyage`.`admin`(
     `email` VARCHAR(45) NOT NULL UNIQUE, 
     `password` VARCHAR(45) NOT NULL , 
     PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+
+CREATE TABLE `agence_voyage`.`newsletter`( 
+    `id` INT NOT NULL AUTO_INCREMENT, 
+    `email` VARCHAR(45) NOT NULL UNIQUE, 
+    PRIMARY KEY (`id`)) ENGINE = InnoDB;

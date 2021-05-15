@@ -1,5 +1,4 @@
 const User = require("../models/userModel");
-const catchAsync = require("../utils/catchAsync");
 
 exports.register = async (req, res) => {
   try {
@@ -12,16 +11,15 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
   try {
-    const admin = await User.login(req, res);
-    console.log(admin);
-    res.status(200).json(admin);
+    const user = await User.login(req, res);
+    res.status(200).json(user);
   } catch (error) {
     res.status(error.status).json(error.message);
   }
 };
 
 exports.logout = async (req, res, next) => {
-  res.clearCookie("agent_jwt");
+  res.clearCookie("access_token");
   res.status(200).json({
     status: "success",
   });
@@ -35,6 +33,7 @@ exports.getAllUsers = async (req, res) => {
       data: users,
     });
   } catch (error) {
+    console.log(error);
     res.status(error.status).json(error.message);
   }
 };

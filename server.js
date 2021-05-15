@@ -16,10 +16,8 @@ require("./config/db");
 
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
+  res.header("Access-Control-Allow-Methods", "*");
+  res.header("Access-Control-Allow-Headers", "*");
   next();
 });
 
@@ -34,24 +32,25 @@ app.use(
 );
 app.use(bodyParser.json());
 //fin partie bodyParser
-const userRoutes = require("./routes/userRoutes");
-const voyageRoutes = require("./routes/voyageRoutes");
-const reservationRoute = require("./routes/reservationRoutes");
-const adminRoutes = require("./routes/adminRoutes");
-const agencesRoutes = require("./routes/agencesRoutes");
-const newsletterRoutes = require("./routes/newsletterRoutes");
+const userRoutes = require("./routes/admin/userRoutes");
+const voyageRoutes = require("./routes/admin/voyageRoutes");
+const reservationRoute = require("./routes/admin/reservationRoutes");
+const adminRoutes = require("./routes/admin/adminRoutes");
+const agencesRoutes = require("./routes/admin/agencesRoutes");
+const newsletterRoutes = require("./routes/admin/newsletterRoutes");
+const statRoutes = require("./routes/admin/statRoutes");
 // ###################### Routes USER ######################
-app.use("/API/user/", userRoutes);
-app.use("/API/user/", voyageRoutes);
+app.use("/API/user/", newsletterRoutes);
 app.use("/API/user/", reservationRoute);
-
+app.use("/API/user/", userRoutes);
 // ###################### Routes ADMIN ######################
-app.use("/API/admin/", userRoutes);
 app.use("/API/admin/", adminRoutes);
-app.use("/API/admin/", voyageRoutes);
-app.use("/API/admin/", reservationRoute);
 app.use("/API/admin/", agencesRoutes);
 app.use("/API/admin/", newsletterRoutes);
+app.use("/API/admin/", reservationRoute);
+app.use("/API/admin/", statRoutes);
+app.use("/API/admin/", userRoutes);
+app.use("/API/admin/", voyageRoutes);
 
 // app.all("*", (req, res, next) => {
 //   next(new appError(`Can't find ${req.originalUrl} on this server`, 404));

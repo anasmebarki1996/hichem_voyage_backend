@@ -16,12 +16,13 @@ exports.login = async (req, res) => {
     console.log(admin);
     res.status(200).json(admin);
   } catch (error) {
+    console.log(error);
     res.status(error.status).json(error.message);
   }
 };
 
 exports.logout = async (req, res, next) => {
-  res.clearCookie("agent_jwt");
+  res.clearCookie("access_token");
   res.status(200).json({
     status: "success",
   });

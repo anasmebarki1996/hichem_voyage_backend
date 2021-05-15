@@ -11,9 +11,9 @@ exports.createNewsletter = async (req, res) => {
   }
 };
 
-exports.getNewsletters = async (req, res) => {
+exports.getAllnewsletters = async (req, res) => {
   try {
-    let { email } = req.body;
+    let { email, order, page, limit } = req.body;
     let searchQuery = "";
     let queryData = "SELECT email FROM newsletter WHERE ";
     if (email) searchQuery += " email LIKE '%" + email + "%' AND";
@@ -35,6 +35,7 @@ exports.getNewsletters = async (req, res) => {
       dataLength: emailsLength[0].numberOfRow,
     };
   } catch (error) {
+    console.log(error);
     throw { message: "something went wrong", status: 403 };
   }
 };
