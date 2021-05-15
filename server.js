@@ -64,9 +64,12 @@ app.use("/API/admin/", voyageRoutes);
 
 // ###################### FIN Routes ######################
 
-const PORT = process.env.PORT || 30001;
-const server = app.listen(PORT, process.env.LOCALHOST, function () {
-  console.log("Server is running on : " + process.env.LOCALHOST + ":" + PORT);
+const PORT = process.env.PORT || 3000;
+// const server = app.listen(PORT, process.env.LOCALHOST, function () {
+//   console.log("Server is running on : " + process.env.LOCALHOST + ":" + PORT);
+// });
+const server = app.listen(PORT, function () {
+  console.log("Server is running on :" + PORT);
 });
 
 // process.on("unhandledRejection", (err) => {
