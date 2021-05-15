@@ -22,6 +22,7 @@ exports.isAdmin = async (req, res, next) => {
     req = { ...req, body: { ...req.body, admin_id: decoded.id } };
     // // 3) Check if agent still exists
     const currentAgent = await Admin.isAdmin(req, res);
+
     if (!currentAgent) {
       throw {};
     }
