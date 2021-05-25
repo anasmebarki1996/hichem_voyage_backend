@@ -36,25 +36,20 @@ app.get("/", (req, res) => {
   res.send("hello world");
 });
 //fin partie bodyParser
-const userRoutes = require("./routes/admin/userRoutes");
-const voyageRoutes = require("./routes/admin/voyageRoutes");
-const reservationRoute = require("./routes/admin/reservationRoutes");
-const adminRoutes = require("./routes/admin/adminRoutes");
-const agencesRoutes = require("./routes/admin/agencesRoutes");
-const newsletterRoutes = require("./routes/admin/newsletterRoutes");
-const statRoutes = require("./routes/admin/statRoutes");
+
 // ###################### Routes USER ######################
-app.use("/API/user/", newsletterRoutes);
-app.use("/API/user/", reservationRoute);
-app.use("/API/user/", userRoutes);
+app.use("/API/user/", require("./routes/user/newsletterRoutes"));
+app.use("/API/user/", require("./routes/user/reservationRoutes"));
+app.use("/API/user/", require("./routes/user/userRoutes"));
+app.use("/API/user/", require("./routes/user/voyageRoutes"));
+
 // ###################### Routes ADMIN ######################
-app.use("/API/admin/", adminRoutes);
-app.use("/API/admin/", agencesRoutes);
-app.use("/API/admin/", newsletterRoutes);
-app.use("/API/admin/", reservationRoute);
-app.use("/API/admin/", statRoutes);
-app.use("/API/admin/", userRoutes);
-app.use("/API/admin/", voyageRoutes);
+app.use("/API/admin/", require("./routes/admin/voyageRoutes"));
+app.use("/API/admin/", require("./routes/admin/newsletterRoutes"));
+app.use("/API/admin/", require("./routes/admin/reservationRoutes"));
+app.use("/API/admin/", require("./routes/admin/statRoutes"));
+app.use("/API/admin/", require("./routes/admin/userRoutes"));
+app.use("/API/admin/", require("./routes/admin/adminRoutes"));
 
 // app.all("*", (req, res, next) => {
 //   next(new appError(`Can't find ${req.originalUrl} on this server`, 404));
@@ -65,12 +60,12 @@ app.use("/API/admin/", voyageRoutes);
 // ###################### FIN Routes ######################
 
 const PORT = process.env.PORT || 3000;
-// const server = app.listen(PORT, process.env.LOCALHOST, function () {
-//   console.log("Server is running on : " + process.env.LOCALHOST + ":" + PORT);
-// });
-const server = app.listen(PORT, function () {
-  console.log("Server is running on :" + PORT);
+const server = app.listen(PORT, process.env.LOCALHOST, function () {
+  console.log("Server is running on : " + process.env.LOCALHOST + ":" + PORT);
 });
+// const server = app.listen(PORT, function () {
+//   console.log("Server is running on :" + PORT);
+// });
 
 // process.on("unhandledRejection", (err) => {
 //   console.log(err.name, err.message);

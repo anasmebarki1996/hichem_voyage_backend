@@ -9,7 +9,7 @@ exports.createAgence = async (req) => {
     );
     return agence;
   } catch (error) {
-    throw { message: "something went wrong", status: 403 };
+    throw { message: "something went wrong", status: 400 };
   }
 };
 
@@ -64,7 +64,7 @@ exports.getAllAgences = async (req) => {
 
     return { data: users, dataLength: usersLength[0].numberOfRow };
   } catch (error) {
-    throw { message: "something went wrong", status: 403 };
+    throw { message: "something went wrong", status: 400 };
   }
 };
 
@@ -76,6 +76,6 @@ exports.getAgencesList = async (req) => {
 
     return { data: agences };
   } catch (error) {
-    throw { message: "something went wrong", status: 403 };
+    throw { message: "something went wrong", status: 400 };
   }
 };

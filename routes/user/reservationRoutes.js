@@ -8,10 +8,10 @@ router.post(
   authMiddleware.isUser,
   reservationController.createReservation
 );
+router.post("/getReservation", reservationController.getReservation);
 router.post(
-  "/getReservation",
+  "/getAllReservations",
   authMiddleware.isUser,
-  reservationController.getReservation
+  reservationController.getAllReservations
 );
-
 module.exports = router;

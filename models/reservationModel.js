@@ -2,42 +2,41 @@ var connexion = require("./../config/db");
 
 exports.createReservation = async (req, res) => {
   try {
-    const {
-      date_reservation,
-      heure_reservation,
-      nombre_place,
-      voyage_id,
-      user_id,
-    } = req.body;
+    const { nombre_place, voyage_id, user_id } = req.body;
+
+    console.log("user_id");
+    console.log(user_id);
+    console.log("nombre_place");
+    console.log(nombre_place);
+
     let place_restante = await connexion.query(
-      "SELECT (voyage.max_place - SUM(nombre_place)) as place_restante FROM reservation , voyage WHERE reservation.voyage_id = voyage.id and voyage_id = ? and reservation.status='valide'",
+      "SELECT (voyage.max_place - COALESCE(SUM(nombre_place), 0)) as place_restante FROM voyage LEFT JOIN reservation ON reservation.voyage_id = voyage.id WHERE voyage.id=? GROUP BY voyage.id",
       [voyage_id]
     );
 
+    if (!place_restante.length) {
+      throw { message: "voyage non disponible", status: 403 };
+    }
     if (place_restante[0].place_restante >= nombre_place) {
       await connexion.query(
-        "INSERT INTO reservation (date_reservation,heure_reservation,nombre_place,status,voyage_id,user_id) VALUES (?,?,?,'active',?,?)",
-        [date_reservation, heure_reservation, nombre_place, voyage_id, user_id]
+        "INSERT INTO reservation (date_reservation,heure_reservation,nombre_place,status,voyage_id,user_id) VALUES (CURRENT_DATE,CURRENT_TIME,?,'active',?,?)",
+        [nombre_place, voyage_id, user_id]
       );
       return;
-    } else throw { message: "il ne reste pas asssez de place ", status: 401 };
+    } else throw { message: "il ne reste pas assez de place ", status: 403 };
   } catch (error) {
+    console.log(error);
     if (error.message) throw { message: error.message, status: error.status };
-    else throw { message: "something went wrong", status: 403 };
+    else throw { message: "something went wrong", status: 400 };
   }
 };
 
+// current_date() , CURRENT_TIME()
+
 exports.getAllReservations = async (req, res) => {
   try {
-    let {
-      user_id,
-      lieu_depart,
-      lieu_arrive,
-      date_depart,
-      limit,
-      page,
-      order,
-    } = req.body;
+    let { user_id, lieu_depart, lieu_arrive, date_depart, limit, page, order } =
+      req.body;
     let searchQuery = "";
     let queryData =
       "SELECT nom , prenom , num_tel , prix , duree , date_reservation,heure_reservation ,nombre_place ,status , moyen_transport, date_depart , heure_depart , lieu_depart , lieu_arrive ,voyage.id ,max_place FROM reservation , user , voyage WHERE reservation.user_id = user.id AND reservation.voyage_id = voyage.id AND ";
@@ -64,7 +63,8 @@ exports.getAllReservations = async (req, res) => {
       dataLength: reservationsLength[0].numberOfRow,
     };
   } catch (error) {
-    throw { message: "something went wrong", status: 403 };
+    console.log(error);
+    throw { message: "something went wrong", status: 400 };
   }
 };
 
@@ -78,7 +78,7 @@ exports.getReservation = async (req, res) => {
     );
     return reservation[0];
   } catch (error) {
-    throw { message: "something went wrong", status: 403 };
+    throw { message: "something went wrong", status: 400 };
   }
 };
 
@@ -91,7 +91,7 @@ exports.deleteReservation = async (req, res) => {
     ]);
     return;
   } catch (error) {
-    throw { message: "something went wrong", status: 403 };
+    throw { message: "something went wrong", status: 400 };
   }
 };
 
@@ -104,6 +104,6 @@ exports.updateReservation = async (req, res) => {
     );
     return;
   } catch (error) {
-    throw { message: "something went wrong", status: 403 };
+    throw { message: "something went wrong", status: 400 };
   }
 };

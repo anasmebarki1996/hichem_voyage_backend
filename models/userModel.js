@@ -2,6 +2,9 @@ var connexion = require("../config/db");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+const JWT_SECRET = "idfqshkf;,qesrnfzeior,za;dsqjqsdf,;fnqsjk";
+const JWT_EXPIRES_IN = 86400000000000000;
+
 exports.getAllUsers = async (req) => {
   try {
     let { limit, page, order, search } = req.body;
@@ -41,19 +44,26 @@ exports.getAllUsers = async (req) => {
 
     return { data: users, dataLength: usersLength[0].numberOfRow };
   } catch (error) {
-    throw { message: "something went wrong", status: 403 };
+    throw { message: "something went wrong", status: 400 };
   }
 };
 
 exports.getUser = async (req) => {
-  const { user_id } = req.body;
+  try {
+    const { user_id } = req.body;
 
-  let users = await connexion.query(
-    "SELECT id,nom,prenom,date_naissance,email,num_tel,adresse FROM user WHERE id=?",
-    [user_id]
-  );
+    let users = await connexion.query(
+      "SELECT id,nom,prenom,date_naissance,email,num_tel,adresse FROM user WHERE id=?",
+      [user_id]
+    );
 
-  return { data: users[0] };
+    console.log(users);
+    return { data: users[0] };
+  } catch (error) {
+    console.log(error);
+    if (error.message) throw { message: error.message, status: error.status };
+    else throw { message: "something went wrong", status: 400 };
+  }
 };
 
 const signToken = (id) => {
@@ -61,10 +71,7 @@ const signToken = (id) => {
     {
       id: id,
     },
-    process.env.JWT_SECRET,
-    {
-      expiresIn: process.env.JWT_EXPIRES_IN,
-    }
+    process.env.JWT_SECRET
   );
 };
 
@@ -88,18 +95,22 @@ exports.register = async (req) => {
       return user;
     }
   } catch (error) {
-    throw { message: "something went wrong", status: 403 };
+    if (error.message) throw { message: error.message, status: error.status };
+    else throw { message: "something went wrong", status: 400 };
   }
 };
 
 exports.login = async (req) => {
-  const { email, password } = req.body;
-
-  let user = await connexion.query("SELECT * FROM user WHERE email=?", [email]);
-
   try {
+    const { email, password } = req.body;
+
+    let user = await connexion.query("SELECT * FROM user WHERE email=?", [
+      email,
+    ]);
+
     if (user.length) {
       const validPassword = await bcrypt.compare(password, user[0].password);
+
       if (validPassword) {
         const { id, nom, prenom, email } = user[0];
         let token = await signToken(id);
@@ -111,33 +122,27 @@ exports.login = async (req) => {
           access_token: token,
           expires_in: JWT_EXPIRES_IN,
         };
-      }
+      } else
+        throw {
+          message:
+            "Veuillez-vous vérifier votre email et votre mot de passe s'il vous plait",
+          status: 401,
+        };
     }
-    throw {
-      message:
-        "Vous n'est plus connecté! Veuillez-vous vous connecter s'il vous plait",
-      status: 401,
-    };
   } catch (error) {
-    if (error.message) {
-      return { error: error.message, status: error.status };
-    } else
-      throw {
-        message:
-          "Vous n'est plus connecté! Veuillez-vous vous connecter s'il vous plait",
-        status: 401,
-      };
+    console.log(error);
+    if (error.message) throw { message: error.message, status: error.status };
+    else throw { message: "something went wrong", status: 400 };
   }
 };
 
 exports.updateUserInformations = async (req) => {
   try {
-    const { user_id, nom, prenom, email, num_tel, adresse } = req.body;
+    const { user_id, nom, prenom, date_naissance, num_tel, adresse } = req.body;
     await connexion.query(
-      "UPDATE user SET nom=? ,prenom=? ,date_naissance=? ,num_tel=? ,adresse=? WHERE id=",
+      "UPDATE user SET nom=? ,prenom=? ,date_naissance=? ,num_tel=? ,adresse=? WHERE id=?",
       [nom, prenom, date_naissance, num_tel, adresse, user_id]
     );
-
     return;
   } catch (error) {
     throw {
@@ -150,10 +155,11 @@ exports.updateUserInformations = async (req) => {
 
 exports.updateUserPassword = async (req) => {
   try {
-    const { id, password } = req.body;
-    await connexion.query("UPDATE user SET password=? WHERE id=", [
-      password,
-      id,
+    const { user_id, password } = req.body;
+    let passwordHashed = await bcrypt.hash(password, 10);
+    await connexion.query("UPDATE user SET password=? WHERE id=?", [
+      passwordHashed,
+      user_id,
     ]);
 
     return;

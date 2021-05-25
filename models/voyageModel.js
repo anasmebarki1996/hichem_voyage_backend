@@ -1,19 +1,22 @@
 var connexion = require("../config/db");
 
 exports.createVoyage = async (req, res) => {
-  const {
-    lieu_depart,
-    lieu_arrive,
-    date_depart,
-    heure_depart,
-    duree,
-    prix,
-    max_place,
-    moyen_transport,
-    agence_id,
-  } = req.body;
-
   try {
+    const {
+      lieu_depart,
+      lieu_arrive,
+      date_depart,
+      heure_depart,
+      duree,
+      prix,
+      max_place,
+      moyen_transport,
+      agence_id,
+    } = req.body;
+
+    let d1 = new Date();
+    d1.setHours(0, duree, 0, 0);
+    console.log(d1);
     await connexion.query(
       "INSERT INTO voyage (lieu_depart,lieu_arrive,date_depart,heure_depart,duree,prix,max_place ,moyen_transport, agence_id ) VALUES (?,?,?,?,?,?,?,?,?)",
       [
@@ -21,17 +24,17 @@ exports.createVoyage = async (req, res) => {
         lieu_arrive,
         date_depart,
         heure_depart,
-        duree,
+        d1,
         prix,
         max_place,
         moyen_transport,
-        agence_id,
+        1,
       ]
     );
     return;
   } catch (error) {
     console.log(error);
-    throw { message: "something went wrong", status: 403 };
+    throw { message: "something went wrong", status: 400 };
   }
 };
 exports.getVoyage = async (req) => {
@@ -58,7 +61,7 @@ exports.getAllVoyages = async (req, res) => {
 
     let queryLength = "";
     let queryData =
-      "select moyen_transport, date_depart , heure_depart , lieu_depart , duree , prix,  lieu_arrive ,voyage.id , COUNT(reservation.id) as nombre_reservation ,SUM(reservation.nombre_place) as place_reserve ,max_place FROM voyage LEFT JOIN reservation on voyage.id = reservation.voyage_id WHERE";
+      "select voyage.id AS voyage_id ,moyen_transport, date_depart , heure_depart, duree , (ADDTIME(heure_depart,duree)) as heure_arrive, lieu_depart , agence.nom as agence , lieu_arrive ,prix,max_place, COALESCE(SUM(nombre_place), 0) as place_reserve , ( max_place - COALESCE(SUM(nombre_place), 0)) as place_restant FROM voyage LEFT JOIN reservation on voyage.id = reservation.voyage_id LEFT JOIN agence on voyage.agence_id = agence.id WHERE";
     if (user_id) queryData += " user_id=" + user_id + " AND";
     if (lieu_depart)
       queryData += " lieu_depart LIKE '%" + lieu_depart + "%' AND";
@@ -76,18 +79,17 @@ exports.getAllVoyages = async (req, res) => {
 
     order = order ? " ORDER BY " + order : "";
     limit = limit ? limit : 5;
-    console.log(limit);
     page = page > 0 ? page * limit : 0;
     queryData += order + " LIMIT " + limit + " OFFSET " + page;
 
     let voyagesLength = await connexion.query(queryLength, []);
 
     let voyages = await connexion.query(queryData, []);
-
+    console.log(voyages);
     return { data: voyages, dataLength: voyagesLength[0].numberOfRow };
   } catch (error) {
     console.log(error);
-    throw { message: "something went wrong", status: 403 };
+    throw { message: "something went wrong", status: 400 };
   }
 };
 
@@ -100,7 +102,7 @@ exports.deleteVoyage = async (req, res) => {
     await connexion.query("DELETE FROM voyage WHERE id=?", [voyage_id]);
     return;
   } catch (error) {
-    throw { message: "something went wrong", status: 403 };
+    throw { message: "something went wrong", status: 400 };
   }
 };
 
@@ -136,6 +138,6 @@ exports.updateVoyage = async (req, res) => {
     );
     return;
   } catch (error) {
-    throw { message: "something went wrong", status: 403 };
+    throw { message: "something went wrong", status: 400 };
   }
 };

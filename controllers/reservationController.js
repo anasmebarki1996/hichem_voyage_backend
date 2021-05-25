@@ -17,6 +17,7 @@ exports.getAllReservations = async (req, res) => {
       data: reservations,
     });
   } catch (error) {
+    console.log(error);
     res.status(error.status).json(error.message);
   }
 };

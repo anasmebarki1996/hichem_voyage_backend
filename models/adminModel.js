@@ -67,12 +67,8 @@ exports.login = async (req) => {
       status: 401,
     };
   } catch (error) {
-    console.log(error);
-    throw {
-      message:
-        "Vous n'est plus connecté! Veuillez-vous vous connecter s'il vous plait",
-      status: 401,
-    };
+    if (error.message) throw { message: error.message, status: error.status };
+    else throw { message: "something went wrong", status: 400 };
   }
 };
 

@@ -8,6 +8,7 @@ router.post(
   authMiddleware.isAdmin,
   voyageController.getAllVoyages
 );
+
 router.post("/getVoyage", authMiddleware.isAdmin, voyageController.getVoyage);
 router.post(
   "/createVoyage",

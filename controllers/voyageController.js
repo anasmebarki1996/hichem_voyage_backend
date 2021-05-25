@@ -8,6 +8,7 @@ exports.getAllVoyages = async (req, res) => {
       data: voyages,
     });
   } catch (error) {
+    console.log(error);
     res.status(error.status).json(error.message);
   }
 };

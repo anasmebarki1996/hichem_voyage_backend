@@ -7,7 +7,7 @@ exports.createNewsletter = async (req, res) => {
     await connexion.query("INSERT INTO newsletter (email) VALUES (?)", [email]);
     return;
   } catch (error) {
-    throw { message: "something went wrong", status: 403 };
+    throw { message: "something went wrong", status: 400 };
   }
 };
 
@@ -36,6 +36,6 @@ exports.getAllnewsletters = async (req, res) => {
     };
   } catch (error) {
     console.log(error);
-    throw { message: "something went wrong", status: 403 };
+    throw { message: "something went wrong", status: 400 };
   }
 };
